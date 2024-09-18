@@ -20,6 +20,7 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
     private ilCtrlInterface $ctrl;
     private ilGlobalTemplateInterface $tpl;
     private ilTabsGUI $tabs;
+    private UploadServiceGUI $uploader;
 
     public function __construct()
     {
@@ -32,6 +33,7 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
         $this->ctrl = $DIC->ctrl();
         $this->tpl = $DIC->ui()->mainTemplate();
         $this->tabs = $DIC->tabs();
+        $this->uploader = new UploadServiceGUI();
     }
 
     public function executeCommand(): void
@@ -60,12 +62,32 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
             $this->setSubTabs("subtab_generic_settings");
         }
 
-        $this->tpl->setContent($this->renderForm($this->ctrl->getLinkTarget($this, 'edit'), $this->buildForm()));
+        $this->tpl->setContent($this->renderForm($this->ctrl->getLinkTarget($this, 'create'), $this->buildForm()));
     }
 
+    /**
+     * @throws ilCtrlException
+     */
     public function create(): void
     {
+        global $DIC;
 
+        $parent_id = ilObject::_lookupObjectId((int) filter_input(INPUT_GET, "ref_id"));
+
+        $page_id = filter_input(INPUT_GET, "obj_id");
+
+        $form = $this->factory->input()->container()->form()->standard(
+            $this->ctrl->getLinkTarget($this, 'create'),
+            $this->buildForm()
+        )->withRequest($DIC->http()->request());
+
+        $result = $form->getData();
+
+        if ($result) {
+            dump($parent_id, $page_id, $result); exit();
+        } else {
+            $this->tpl->setContent($this->renderer->render($form));
+        }
     }
 
     public function getElementHTML(string $a_mode, array $a_properties, string $plugin_version): string
@@ -109,7 +131,7 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
         $inputs[] = $this->factory->input()->field()->text($this->plugin->txt("component_title"))
             ->withRequired(true);
 
-        $inputs[] = $this->factory->input()->field()->file(new UploadServiceGUI(), $this->plugin->txt("component_geogebra_file"))
+        $inputs[] = $this->factory->input()->field()->file($this->uploader, $this->plugin->txt("component_geogebra_file"))
             ->withRequired(true);
 
         $inputs[] = $this->factory->input()->field()->numeric($this->plugin->txt("component_width"))
