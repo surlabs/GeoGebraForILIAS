@@ -36,6 +36,50 @@ class UploadServiceGUI extends AbstractCtrlAwareUploadHandler
         $this->stakeholder = new StorageStakeHolder();
     }
 
+    public function getFileIdentifierParameterName(): string
+    {
+        return "ggb_file";
+    }
+
+    /**
+     * @throws ilCtrlException
+     */
+    public function getUploadURL(): string
+    {
+        return $this->ctrl->getLinkTargetByClass(
+            [ilUIPluginRouterGUI::class, self::class],
+            self::CMD_UPLOAD,
+            null,
+            true
+        );
+    }
+
+    /**
+     * @throws ilCtrlException
+     */
+    public function getExistingFileInfoURL(): string
+    {
+        return $this->ctrl->getLinkTargetByClass(
+            [ilUIPluginRouterGUI::class, self::class],
+            self::CMD_INFO,
+            null,
+            true
+        );
+    }
+
+    /**
+     * @throws ilCtrlException
+     */
+    public function getFileRemovalURL(): string
+    {
+        return $this->ctrl->getLinkTargetByClass(
+            [ilUIPluginRouterGUI::class, self::class],
+            self::CMD_REMOVE,
+            null,
+            true
+        );
+    }
+
     /**
      * @throws IllegalStateException
      * @throws Exception

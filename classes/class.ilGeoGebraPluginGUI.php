@@ -58,11 +58,7 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
      */
     public function edit(): void
     {
-        if (!empty($this->getProperties())) {
-            $this->setSubTabs("subtab_generic_settings");
-        }
-
-        $this->tpl->setContent($this->renderForm($this->ctrl->getLinkTarget($this, 'create'), $this->buildForm()));
+        $this->ctrl->redirect($this, 'create');
     }
 
     /**
@@ -74,20 +70,27 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
 
         $parent_id = ilObject::_lookupObjectId((int) filter_input(INPUT_GET, "ref_id"));
 
-        $page_id = filter_input(INPUT_GET, "obj_id");
+        $request = $DIC->http()->request();
 
         $form = $this->factory->input()->container()->form()->standard(
-            $this->ctrl->getLinkTarget($this, 'create'),
+            "#",
             $this->buildForm()
-        )->withRequest($DIC->http()->request());
+        );
 
-        $result = $form->getData();
+        if ($request->getMethod() == "POST") {
+            $form = $form->withRequest($request);
 
-        if ($result) {
-            dump($parent_id, $page_id, $result); exit();
-        } else {
-            $this->tpl->setContent($this->renderer->render($form));
+            $result = $form->getData();
+
+            if ($result) {
+                dump($result["title"]);
+                dump($this->uploader->getExistingFileInfoURL());
+                dump($this->uploader->getInfoResult($result["file"][0])->getName());
+                exit();
+            }
         }
+
+        $this->tpl->setContent($this->renderer->render($form));
     }
 
     public function getElementHTML(string $a_mode, array $a_properties, string $plugin_version): string
@@ -128,25 +131,25 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
     {
         $inputs = array();
 
-        $inputs[] = $this->factory->input()->field()->text($this->plugin->txt("component_title"))
+        $inputs["title"] = $this->factory->input()->field()->text($this->plugin->txt("component_title"))
             ->withRequired(true);
 
-        $inputs[] = $this->factory->input()->field()->file($this->uploader, $this->plugin->txt("component_geogebra_file"))
+        $inputs["file"] = $this->factory->input()->field()->file($this->uploader, $this->plugin->txt("component_geogebra_file"))
             ->withRequired(true);
 
-        $inputs[] = $this->factory->input()->field()->numeric($this->plugin->txt("component_width"))
+        $inputs["widht"] = $this->factory->input()->field()->numeric($this->plugin->txt("component_width"))
             ->withRequired(true)->withValue(800);
 
-        $inputs[] = $this->factory->input()->field()->numeric($this->plugin->txt("component_height"))
+        $inputs["height"] = $this->factory->input()->field()->numeric($this->plugin->txt("component_height"))
             ->withRequired(true)->withValue(600);
 
-        $inputs[] = $this->factory->input()->field()->checkbox($this->plugin->txt("component_enableShiftDragZoom"))
+        $inputs["enableShiftDragZoom"] = $this->factory->input()->field()->checkbox($this->plugin->txt("component_enableShiftDragZoom"))
             ->withValue(true);
 
-        $inputs[] = $this->factory->input()->field()->checkbox($this->plugin->txt("component_showResetIcon"))
+        $inputs["showResetIcon"] = $this->factory->input()->field()->checkbox($this->plugin->txt("component_showResetIcon"))
             ->withValue(false);
 
-        $inputs[] = $this->factory->input()->field()->select($this->plugin->txt("component_aligment"), [
+        $inputs["aligment"] = $this->factory->input()->field()->select($this->plugin->txt("component_aligment"), [
             "left" => $this->plugin->txt("component_left"),
             "center" => $this->plugin->txt("component_center"),
             "right" => $this->plugin->txt("component_right")

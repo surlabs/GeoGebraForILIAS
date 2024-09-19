@@ -13,12 +13,9 @@ use ILIAS\ResourceStorage\Stakeholder\AbstractResourceStakeholder;
  */
 class StorageStakeHolder extends AbstractResourceStakeholder
 {
-    /**
-     * @inheritDoc
-     */
     public function getId(): string
     {
-        return 'ggb';
+        return 'ggb_file';
     }
 
     public function getOwnerOfNewResources(): int
