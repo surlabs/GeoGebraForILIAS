@@ -53,3 +53,6 @@ component_aligment#:#Alignment
 component_left#:#Left
 component_center#:#Center
 component_right#:#Right
+
+subtab_generic_settings#:#Generic Settings
+subtab_advanced_settings#:#Advanced Settings

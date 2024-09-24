@@ -1,0 +1,29 @@
+body {
+	margin: 0;
+}
+
+.geogebra_container {
+	width:100%;
+	margin-top:    3px;
+	margin-bottom: 3px;
+}
+
+.geogebra_object {
+	display: table;
+}
+
+.geogebra_object.right > .applet_scaler {
+	transform: none !important;
+}
+
+.center {
+	margin: 0 auto;
+}
+
+.left {
+	margin: 0 auto 0 0;
+}
+
+.right {
+	margin: 0 0 0 auto;
+}

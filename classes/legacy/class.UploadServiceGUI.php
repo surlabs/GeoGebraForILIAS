@@ -20,6 +20,7 @@ use ILIAS\FileUpload\Handler\BasicFileInfoResult;
  * @authors Jesús Copado, Daniel Cazalla, Saúl Díaz, Juan Aguilar <info@surlabs.es>
  *
  * @ilCtrl_isCalledBy UploadServiceGUI : ilGeoGebraPluginGUI
+ * @ilCtrl_isCalledBy UploadServiceGUI : ilUIPluginRouterGUI
  */
 class UploadServiceGUI extends AbstractCtrlAwareUploadHandler
 {
@@ -32,7 +33,7 @@ class UploadServiceGUI extends AbstractCtrlAwareUploadHandler
 
         parent::__construct();
 
-        $this->storage = $DIC['resource_storage'];
+        $this->storage = $DIC->resourceStorage();
         $this->stakeholder = new StorageStakeHolder();
     }
 

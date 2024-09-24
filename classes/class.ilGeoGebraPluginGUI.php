@@ -4,8 +4,11 @@ declare(strict_types=1);
  * Disclaimer: This file is part of the GeoGebra Repository Object plugin for ILIAS.
  */
 
+use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
+use platform\GeoGebraConfig;
+use platform\GeoGebraException;
 
 /**
  * Class ilObjGeoGebraGUI
@@ -21,6 +24,8 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
     private ilGlobalTemplateInterface $tpl;
     private ilTabsGUI $tabs;
     private UploadServiceGUI $uploader;
+
+    protected static int $id_counter = 0;
 
     public function __construct()
     {
@@ -50,7 +55,7 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
      */
     public function insert(): void
     {
-        $this->edit();
+        $this->ctrl->redirect($this, 'create');
     }
 
     /**
@@ -58,17 +63,38 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
      */
     public function edit(): void
     {
-        $this->ctrl->redirect($this, 'create');
+        $this->setSubTabs("subtab_generic_settings");
+
+        $form = $this->factory->input()->container()->form()->standard(
+            $this->ctrl->getLinkTarget($this, "update"),
+            $this->buildForm($this->getProperties())
+        );
+
+        $this->tpl->setContent($this->renderer->render($form));
     }
 
     /**
      * @throws ilCtrlException
      */
+    public function editAdvanced(): void
+    {
+        $this->setSubTabs("subtab_advanced_settings");
+
+        $form = $this->factory->input()->container()->form()->standard(
+            $this->ctrl->getLinkTarget($this, "updateAdvanced"),
+            $this->buildFormAdvanced($this->getProperties())
+        );
+
+        $this->tpl->setContent($this->renderer->render($form));
+    }
+
+    /**
+     * @throws ilCtrlException
+     * @throws GeoGebraException
+     */
     public function create(): void
     {
         global $DIC;
-
-        $parent_id = ilObject::_lookupObjectId((int) filter_input(INPUT_GET, "ref_id"));
 
         $request = $DIC->http()->request();
 
@@ -83,19 +109,210 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
             $result = $form->getData();
 
             if ($result) {
-                dump($result["title"]);
-                dump($this->uploader->getExistingFileInfoURL());
-                dump($this->uploader->getInfoResult($result["file"][0])->getName());
-                exit();
+                $properties = [
+                    "title" => $result["title"],
+                    "legacyFileName" => $this->uploader->getInfoResult($result["file"][0])->getName(),
+                    "fileName"       => $result["file"][0]
+                ];
+
+                $properties = $this->mergeCustomSettings($properties, $result);
+
+                $properties = $this->mergeAdvancedSettings($properties, $result);
+
+                $this->createElement($properties);
+                $this->returnToParent();
             }
         }
 
         $this->tpl->setContent($this->renderer->render($form));
     }
 
+    /**
+     * @throws GeoGebraException
+     */
+    public function update()
+    {
+        global $DIC;
+
+        $request = $DIC->http()->request();
+
+        $form = $this->factory->input()->container()->form()->standard(
+            "#",
+            $this->buildForm()
+        );
+
+        if ($request->getMethod() == "POST") {
+            $form = $form->withRequest($request);
+
+            $result = $form->getData();
+
+            if ($result) {
+                $properties = $this->getProperties();
+
+                $properties["title"] = $result["title"];
+                $properties["legacyFileName"] = $this->uploader->getInfoResult($result["file"][0])->getName();
+                $properties["fileName"] = $result["file"][0];
+
+                $properties = $this->mergeCustomSettings($properties, $result);
+
+                $this->updateElement($properties);
+                $this->returnToParent();
+            }
+        }
+
+        $this->tpl->setContent($this->renderer->render($form));
+    }
+
+    /**
+     * @throws GeoGebraException
+     */
+    public function updateAdvanced()
+    {
+        global $DIC;
+
+        $request = $DIC->http()->request();
+
+        $form = $this->factory->input()->container()->form()->standard(
+            "#",
+            $this->buildFormAdvanced()
+        );
+
+        if ($request->getMethod() == "POST") {
+            $form = $form->withRequest($request);
+
+            $result = $form->getData();
+
+            if ($result) {
+                $properties = $this->getProperties();
+
+                $properties = $this->mergeAdvancedSettings($properties, $result);
+
+                $this->updateElement($properties);
+                $this->returnToParent();
+            }
+        }
+
+        $this->tpl->setContent($this->renderer->render($form));
+    }
+
+    protected function convertValueByType(string $type, $value) {
+        if ($type === "numeric") {
+            if (is_int($value)) {
+                return intval($value);
+            } else {
+                return doubleval($value);
+            }
+        } else if ($type === "checkbox") {
+            return boolval($value);
+        }
+
+        return $value;
+    }
+
+
+    protected function fetchCustomFieldTypes(string $field_name): string
+    {
+        switch ($field_name) {
+            case "width":
+            case "height":
+                return "numeric";
+                break;
+            case "enableShiftDragZoom":
+            case "showResetIcon":
+                return "checkbox";
+                break;
+        }
+
+        return "text";
+    }
+
+    protected function convertPropertyValueTypes(&$properties) {
+        foreach ($properties as $key => $property) {
+            if (strpos($key, "custom_") == 0) {
+                $postKey = str_replace("custom_", "", $key);
+                $field_type = $this->fetchCustomFieldTypes($postKey);
+                $properties[$key] = $this->convertValueByType($field_type, $property);
+            }
+
+            if (strpos($key, "advanced_") == 0) {
+                $postKey = str_replace("advanced_", "", $key);
+                if (isset($this->getAdvancedInputs()[$postKey][0])) {
+                    $field_type = $this->getAdvancedInputs()[$postKey][0];
+                    $properties[$key] = $this->convertValueByType($field_type, $property);
+                }
+            }}
+    }
+
+    protected function calculateScalingHeight(&$properties_after_change): string
+    {
+        $scaling_height = $properties_after_change["custom_height"];
+        $scale_factor = $properties_after_change["advanced_scale"];
+
+        if (!is_null($scale_factor) && $scale_factor < floatval(1)) {
+            $properties_after_change["custom_alignment"] = "left";
+
+            $scaling_height *= $scale_factor;
+        }
+
+        return $scaling_height . "px";
+    }
+
+    /**
+     * @throws ilTemplateException
+     */
     public function getElementHTML(string $a_mode, array $a_properties, string $plugin_version): string
     {
-        return '';
+        global $DIC;
+
+        self::$id_counter++;
+        $id = "srgg_" . self::$id_counter;
+
+        $scale_height = $this->calculateScalingHeight($a_properties);
+
+        if (!file_exists($a_properties["fileName"])) {
+            $irss = $DIC->resourceStorage();
+            $file_name = $irss->consume()->src(new ResourceIdentification($a_properties["fileName"]))->getSrc();
+        }
+
+        if (!empty($iframe_id = filter_input(INPUT_GET, "iframe"))) {
+            if ($iframe_id === $id) {
+                $tpl = new ilTemplate("tpl.geogebra_iframe.html", true, true, "Customizing/global/plugins/Services/COPage/PageComponent/GeoGebra");
+
+                $tpl->setVariable("ID", $id);
+
+                $tpl->setVariable("SCALE_WRAPPER_HEIGHT", $scale_height);
+
+                $this->convertPropertyValueTypes($a_properties);
+
+                $raw_alignment = $a_properties["custom_alignment"];
+                $alignment = empty($raw_alignment) ? "left" : $raw_alignment;
+                $tpl->setVariable("ALIGNMENT", $alignment);
+
+                $tpl->setVariable("TEMPLATES_DIR", "Customizing/global/plugins/Services/COPage/PageComponent/GeoGebra/templates");
+                $tpl->setVariable("PLUGIN_DIR", "Customizing/global/plugins/Services/COPage/PageComponent/GeoGebra");
+                $tpl->setVariable("FILE_NAME", $file_name);
+
+                $tpl->setVariable("PROPERTIES", json_encode($a_properties));
+
+                echo $tpl->get();
+                die;
+            } else {
+                return "";
+            }
+        } else {
+            $tpl = new ilTemplate("tpl.geogebra.html", true, true, "Customizing/global/plugins/Services/COPage/PageComponent/GeoGebra");
+
+
+            $tpl->setVariable("ID", $id);
+
+            if (isset($_SERVER["REQUEST_URI"])) {
+                $tpl->setVariable("URL", filter_input(INPUT_SERVER, "REQUEST_URI") . '&iframe=' . $id);
+            }
+
+            $tpl->setVariable("SCALE_WRAPPER_HEIGHT", $scale_height);
+
+            return $tpl->get();
+        }
     }
 
     /**
@@ -127,40 +344,173 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
         return $this->renderer->render($form);
     }
 
-    private function buildForm(): array
+    private function buildForm(?array $properties = null): array
     {
         $inputs = array();
 
         $inputs["title"] = $this->factory->input()->field()->text($this->plugin->txt("component_title"))
-            ->withRequired(true);
+            ->withRequired(true)->withValue($properties["title"] ?? "");
+
+
 
         $inputs["file"] = $this->factory->input()->field()->file($this->uploader, $this->plugin->txt("component_geogebra_file"))
             ->withRequired(true);
 
-        $inputs["widht"] = $this->factory->input()->field()->numeric($this->plugin->txt("component_width"))
-            ->withRequired(true)->withValue(800);
+        if (isset($properties["fileName"])) {
+            if (file_exists($properties["fileName"])) {
+                $properties["fileName"] = $this->moveToIRSS($properties["fileName"]);
+            }
+
+            $inputs["file"] = $inputs["file"]->withValue(array(
+                0 => $properties["fileName"]
+            ));
+        }
+
+        $inputs["width"] = $this->factory->input()->field()->numeric($this->plugin->txt("component_width"))
+            ->withRequired(true)->withValue($properties["custom_width"] ?? 800);
 
         $inputs["height"] = $this->factory->input()->field()->numeric($this->plugin->txt("component_height"))
-            ->withRequired(true)->withValue(600);
+            ->withRequired(true)->withValue($properties["custom_height"] ?? 600);
 
         $inputs["enableShiftDragZoom"] = $this->factory->input()->field()->checkbox($this->plugin->txt("component_enableShiftDragZoom"))
-            ->withValue(true);
+            ->withValue(isset($properties["custom_enableShiftDragZoom"]) && (bool) $properties["custom_enableShiftDragZoom"]);
 
         $inputs["showResetIcon"] = $this->factory->input()->field()->checkbox($this->plugin->txt("component_showResetIcon"))
-            ->withValue(false);
+            ->withValue(isset($properties["custom_showResetIcon"]) && (bool) $properties["custom_showResetIcon"]);
 
-        $inputs["aligment"] = $this->factory->input()->field()->select($this->plugin->txt("component_aligment"), [
+        $inputs["alignment"] = $this->factory->input()->field()->select($this->plugin->txt("component_aligment"), [
             "left" => $this->plugin->txt("component_left"),
             "center" => $this->plugin->txt("component_center"),
             "right" => $this->plugin->txt("component_right")
-        ])->withValue("left");
+        ])->withValue($properties["custom_alignment"] ?? "left");
 
 
         return $inputs;
     }
 
-    private function save(): void
+    private function buildFormAdvanced(?array $properties = null): array
+    {
+        $inputs = $this->getAdvancedInputs();
+
+        foreach ($inputs as $key => $input) {
+            $value = $properties["advanced_" . $key] ?? "";
+
+            switch ($input[0]) {
+                case "numeric":
+                    $inputs[$key] = $this->factory->input()->field()->numeric($this->plugin->txt('config_' . $key))
+                        ->withValue($value != "" ? $value : $input[1]);
+                    break;
+                case "checkbox":
+                    $inputs[$key] = $this->factory->input()->field()->checkbox($this->plugin->txt('config_' . $key))
+                        ->withValue($value == "true" ?? $input[1]);
+                    break;
+                case "select":
+                    $inputs[$key] = $this->factory->input()->field()->select($this->plugin->txt('config_' . $key), $input[1]);
+
+                    if ($value != "") {
+                        $inputs[$key] = $inputs[$key]->withValue($value);
+                    }
+
+                    break;
+                case "color":
+                    $inputs[$key] = $this->factory->input()->field()->text($this->plugin->txt('config_' . $key))
+                        ->withValue($value != "" ? (string) $value : $input[1])->withOnLoadCode(function ($id) {
+                            return "$('#$id').attr('type', 'color').width('50px');";
+                        });
+                    break;
+                case "text":
+                    $inputs[$key] = $this->factory->input()->field()->text($this->plugin->txt('config_' . $key))
+                        ->withValue($value != "" ? (string) $value : $input[1]);
+                    break;
+            }
+        }
+
+        return $inputs;
+    }
+
+    private function getAdvancedInputs(): array
+    {
+        return array(
+            "appName" => ["select", ["classic", "graphing", "geometry", "3d"]],
+            "borderColor" => ["color", "#FFFFFF"],
+            "enableRightClick" => ["checkbox", false],
+            "enableLabelDrags" => ["checkbox", false],
+            "showZoomButtons" => ["checkbox", false],
+            "errorDialogsActive" => ["checkbox", false],
+            "showMenuBar" => ["checkbox", false],
+            "showToolBar" => ["checkbox", false],
+            "showToolBarHelp" => ["checkbox", false],
+            "showAlgebraInput" => ["checkbox", false],
+            "language" => ["text", "en"],
+            "allowStyleBar" => ["checkbox", false],
+            "useBrowserForJS" => ["checkbox", false],
+            "showLogging" => ["checkbox", false],
+            "capturingThreshold" => ["numeric", 10],
+            "enable3d" => ["checkbox", false],
+            "enableCAS" => ["checkbox", false],
+            "algebraInputPosition" => ["text", ""],
+            "preventFocus" => ["checkbox", false],
+            "autoHeight" => ["checkbox", false],
+            "allowUpscale" => ["checkbox", false],
+            "playButton" => ["checkbox", false],
+            "scale" => ["numeric", 1],
+            "showAnimationButton" => ["checkbox", false],
+            "showFullscreenButton" => ["checkbox", false],
+            "showSuggestionButtons" => ["checkbox", false],
+            "showStartTooltip" => ["checkbox", false],
+            "rounding" => ["text", ""],
+            "buttonShadows" => ["checkbox", false],
+            "buttonRounding" => ["text", "0.2"],
+        );
+    }
+
+    /**
+     * @throws GeoGebraException
+     */
+    protected function mergeCustomSettings(&$properties, array $result): array
+    {
+        GeoGebraConfig::load();
+        $immutable_fields = GeoGebraConfig::get("immutable");
+        $allSettings = GeoGebraConfig::getAll();
+        $formatedCustomSettings = [];
+
+        foreach ($allSettings as $key => $value) {
+            $key = str_replace("default_", "", $key);
+
+            if (isset($result[$key])) {
+                if (in_array($key, $immutable_fields)) {
+                    $formatedCustomSettings["custom_" . $key] = $value;
+                } else {
+                    $formatedCustomSettings["custom_" . $key] = $result[$key];
+                }
+            }
+        }
+
+        return array_merge($properties, $formatedCustomSettings);
+    }
+
+
+    /**
+     * @throws GeoGebraException
+     */
+    protected function mergeAdvancedSettings(&$properties, array $result): array
+    {
+        GeoGebraConfig::load();
+        $allSettings = GeoGebraConfig::getAll();
+        $advancedSettings = [];
+
+        foreach ($allSettings as $key => $occurring_value) {
+            if ($key !== "immutable" && strpos($key, "default_") !== 0) {
+                $advancedSettings["advanced_" . $key] = $result[$key] ?? $occurring_value;
+            }
+        }
+
+        return array_merge($properties, $advancedSettings);
+    }
+
+    private function moveToIRSS(string $old_path): string
     {
 
+        return "TODO.TODO";
     }
 }
