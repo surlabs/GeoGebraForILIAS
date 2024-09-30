@@ -297,7 +297,7 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
                 echo $tpl->get();
                 die;
             } else {
-                return "";
+                return " ";
             }
         } else {
             $tpl = new ilTemplate("tpl.geogebra.html", true, true, "Customizing/global/plugins/Services/COPage/PageComponent/GeoGebra");
