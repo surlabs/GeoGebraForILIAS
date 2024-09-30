@@ -279,6 +279,8 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
         if (!file_exists($a_properties["fileName"])) {
             $irss = $DIC->resourceStorage();
             $file_name = $irss->consume()->src(new ResourceIdentification($a_properties["fileName"]))->getSrc();
+        } else {
+            $file_name = $a_properties["fileName"];
         }
 
         if (!empty($iframe_id = filter_input(INPUT_GET, "iframe"))) {
