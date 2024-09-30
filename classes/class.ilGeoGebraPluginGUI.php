@@ -511,6 +511,7 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
     private function moveToIRSS(string $old_path): string
     {
 
-        return "TODO.TODO";
+        // TODO: Move from old path and upload to irss, then return the uuid from irss
+        return $old_path;
     }
 }
