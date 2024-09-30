@@ -245,16 +245,23 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
 
     protected function calculateScalingHeight(&$properties_after_change): string
     {
-        $scaling_height = $properties_after_change["custom_height"];
-        $scale_factor = $properties_after_change["advanced_scale"];
+        if (isset($properties_after_change["custom_height"])) {
+            $scaling_height = $properties_after_change["custom_height"];
 
-        if (!is_null($scale_factor) && $scale_factor < floatval(1)) {
-            $properties_after_change["custom_alignment"] = "left";
+            if (isset($properties_after_change["advanced_scale"])) {
+                $scale_factor = $properties_after_change["advanced_scale"];
 
-            $scaling_height *= $scale_factor;
+                if ($scale_factor < floatval(1)) {
+                    $properties_after_change["custom_alignment"] = "left";
+
+                    $scaling_height *= $scale_factor;
+                }
+            }
+
+            return $scaling_height . "px";
+        } else {
+            return "800px";
         }
-
-        return $scaling_height . "px";
     }
 
     /**
@@ -284,7 +291,7 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
 
                 $this->convertPropertyValueTypes($a_properties);
 
-                $raw_alignment = $a_properties["custom_alignment"];
+                $raw_alignment = $a_properties["custom_alignment"] ?? "left";
                 $alignment = empty($raw_alignment) ? "left" : $raw_alignment;
                 $tpl->setVariable("ALIGNMENT", $alignment);
 
@@ -483,6 +490,14 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
                 } else {
                     $formatedCustomSettings["custom_" . $key] = $result[$key];
                 }
+
+                unset($result[$key]);
+            }
+        }
+
+        foreach ($result as $key => $value) {
+            if (!str_starts_with($key, "file") && !str_starts_with($key, "title")) {
+                $formatedCustomSettings["custom_" . $key] = $value;
             }
         }
 

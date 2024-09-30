@@ -13,6 +13,10 @@ use ILIAS\ResourceStorage\Stakeholder\AbstractResourceStakeholder;
  */
 class StorageStakeHolder extends AbstractResourceStakeholder
 {
+    public function __construct()
+    {
+    }
+
     public function getId(): string
     {
         return 'ggb_file';
