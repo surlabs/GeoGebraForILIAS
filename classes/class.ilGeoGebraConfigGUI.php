@@ -200,7 +200,11 @@ class ilGeoGebraConfigGUI extends ilPluginConfigGUI
             "default_height" => ["numeric", 600],
             "default_enableShiftDragZoom" => ["checkbox", false],
             "default_showResetIcon" => ["checkbox", false],
-            "default_alignment" => ["select", ["left", "center", "right"]],
+            "default_alignment" => ["select", [
+                "left" => $this->plugin->txt("component_left"),
+                "center" => $this->plugin->txt("component_center"),
+                "right" => $this->plugin->txt("component_right")
+            ]],
             "appName" => ["select", ["classic", "graphing", "geometry", "3d"]],
             "borderColor" => ["color", "#FFFFFF"],
             "enableRightClick" => ["checkbox", false],
