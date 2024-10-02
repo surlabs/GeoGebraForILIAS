@@ -80,7 +80,7 @@ class GeoGebraConfig
         ));
 
         if (count($config) > 0) {
-            $json_decoded = json_decode($config[0]['value'], true);
+            $json_decoded = json_decode($config[0]['value'] ?? "", true);
 
             if (json_last_error() === JSON_ERROR_NONE) {
                 $config[0]['value'] = $json_decoded;
