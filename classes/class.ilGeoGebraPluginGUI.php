@@ -276,11 +276,13 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
 
         $scale_height = $this->calculateScalingHeight($a_properties);
 
-        if (!file_exists($a_properties["fileName"])) {
+        $old_path = ILIAS_WEB_DIR . '/' . CLIENT_ID . "/geogebra/" . $a_properties["fileName"];
+
+        if (!file_exists($old_path)) {
             $irss = $DIC->resourceStorage();
             $file_name = $irss->consume()->src(new ResourceIdentification($a_properties["fileName"]))->getSrc();
         } else {
-            $file_name = $a_properties["fileName"];
+            $file_name = $old_path;
         }
 
         if (!empty($iframe_id = filter_input(INPUT_GET, "iframe"))) {
@@ -366,8 +368,10 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
             ->withRequired(true);
 
         if (isset($properties["fileName"])) {
-            if (file_exists($properties["fileName"])) {
-                $properties["fileName"] = $this->moveToIRSS($properties["fileName"]);
+            $old_path = ILIAS_WEB_DIR . '/' . CLIENT_ID . "/geogebra/" . $properties["fileName"];
+
+            if (file_exists($old_path)) {
+                $properties["fileName"] = $this->moveToIRSS($old_path);
             }
 
             $inputs["file"] = $inputs["file"]->withValue(array(
