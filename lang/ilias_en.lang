@@ -56,3 +56,5 @@ component_right#:#Right
 
 subtab_generic_settings#:#Generic Settings
 subtab_advanced_settings#:#Advanced Settings
+
+disclaimer_reupload_file#:#This GeoGebra was created in the old version of the plugin. It is necessary to re-upload the .ggb file. In case you haven't downloaded it, don't worry, the download has been forced. Please check your downloads folder.
