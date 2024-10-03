@@ -1,0 +1,60 @@
+config_default_values#:#Valores por defecto
+config_immutables#:#Inmutables
+
+config_default_enableShiftDragZoom#:#Valor por defecto "Habilitar arrastrar y hacer zoom"
+config_default_height#:#Altura por defecto
+config_default_width#:#Ancho por defecto
+config_default_alignment#:#Alineación por defecto
+config_appName#:#Nombre de la aplicación
+config_width#:#Ancho
+config_height#:#Altura
+config_borderColor#:#Color del borde
+config_enableRightClick#:#Habilitar clic derecho
+config_enableLabelDrags#:#Habilitar arrastre de etiquetas
+config_showResetIcon#:#Valor por defecto "Habilitar ícono de reinicio"
+config_enableShiftDragZoom#:#Habilitar arrastrar y hacer zoom
+config_showZoomButtons#:#Mostrar botones de zoom
+config_errorDialogsActive#:#Mostrar cuadros de diálogo de error
+config_showMenuBar#:#Mostrar barra de menú / Botón deshacer
+config_showToolBar#:#Mostrar barra de herramientas
+config_showToolBarHelp#:#Mostrar ayuda de la barra de herramientas
+config_showAlgebraInput#:#Mostrar entrada de álgebra
+config_language#:#Idioma
+config_allowStyleBar#:#Mostrar barra de estilo
+config_useBrowserForJS#:#Usar navegador para JS
+config_showLogging#:#Mostrar registros
+config_capturingThreshold#:#Umbral de captura
+config_enable3d#:#Habilitar 3D
+config_enableCAS#:#Habilitar CAS
+config_algebraInputPosition#:#Posición de entrada de álgebra
+config_preventFocus#:#Prevenir enfoque
+config_autoHeight#:#Altura automática
+config_allowUpscale#:#Permitir ampliación
+config_playButton#:#Mostrar botón de reproducir
+config_scale#:#Escala
+config_showAnimationButton#:#Mostrar botón de animación
+config_showFullscreenButton#:#Mostrar botón de pantalla completa
+config_showSuggestionButtons#:#Mostrar botones de sugerencias
+config_showStartTooltip#:#Mostrar consejo de inicio
+config_rounding#:#Mostrar redondeo
+config_buttonShadows#:#Sombras del botón
+config_buttonRounding#:#Redondeo del botón
+
+config_msg_success#:#Éxito
+
+cmd_insert#:#Insertar GeoGebra
+component_title#:#Título
+component_geogebra_file#:#Archivo GeoGebra
+component_width#:#Ancho
+component_height#:#Altura
+component_enableShiftDragZoom#:#Habilitar arrastrar y hacer zoom
+component_showResetIcon#:#Mostrar ícono de reinicio
+component_aligment#:#Alineación
+component_left#:#Izquierda
+component_center#:#Centro
+component_right#:#Derecha
+
+subtab_generic_settings#:#Configuración genérica
+subtab_advanced_settings#:#Configuración avanzada
+
+disclaimer_reupload_file#:#Este GeoGebra fue creado en la versión antigua del plugin. Es necesario volver a cargar el archivo .ggb. En caso de que no lo haya descargado, no se preocupe, la descarga ha sido forzada. Revise su carpeta de descargas.

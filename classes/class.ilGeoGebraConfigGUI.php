@@ -205,7 +205,9 @@ class ilGeoGebraConfigGUI extends ilPluginConfigGUI
                 "center" => $this->plugin->txt("component_center"),
                 "right" => $this->plugin->txt("component_right")
             ]],
-            "appName" => ["select", ["classic", "graphing", "geometry", "3d"]],
+            "appName" => ["select", [
+                "classic" => "Classic", "graphing" => "Graphing", "geometry" => "Geometry", "3d" => "3D"
+            ]],
             "borderColor" => ["color", "#FFFFFF"],
             "enableRightClick" => ["checkbox", false],
             "enableLabelDrags" => ["checkbox", false],

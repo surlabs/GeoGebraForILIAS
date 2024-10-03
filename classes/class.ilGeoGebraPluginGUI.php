@@ -65,9 +65,20 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
     {
         $this->setSubTabs("subtab_generic_settings");
 
+        $properties = $this->getProperties();
+
+        if (isset($properties["fileName"])) {
+            $old_path = ILIAS_WEB_DIR . "/" . CLIENT_ID . "/geogebra/" . $properties["fileName"];
+
+            if (file_exists($old_path)) {
+                $this->moveToIRSS($old_path);
+                return;
+            }
+        }
+
         $form = $this->factory->input()->container()->form()->standard(
             $this->ctrl->getLinkTarget($this, "update"),
-            $this->buildForm($this->getProperties())
+            $this->buildForm($properties)
         );
 
         $this->tpl->setContent($this->renderer->render($form));
@@ -368,12 +379,6 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
             ->withRequired(true);
 
         if (isset($properties["fileName"])) {
-            $old_path = ILIAS_WEB_DIR . '/' . CLIENT_ID . "/geogebra/" . $properties["fileName"];
-
-            if (file_exists($old_path)) {
-                $properties["fileName"] = $this->moveToIRSS($old_path);
-            }
-
             $inputs["file"] = $inputs["file"]->withValue(array(
                 0 => $properties["fileName"]
             ));
@@ -444,7 +449,9 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
     private function getAdvancedInputs(): array
     {
         return array(
-            "appName" => ["select", ["classic", "graphing", "geometry", "3d"]],
+            "appName" => ["select", [
+                "classic" => "Classic", "graphing" => "Graphing", "geometry" => "Geometry", "3d" => "3D"
+            ]],
             "borderColor" => ["color", "#FFFFFF"],
             "enableRightClick" => ["checkbox", false],
             "enableLabelDrags" => ["checkbox", false],
@@ -502,7 +509,7 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
         }
 
         foreach ($result as $key => $value) {
-            if (!str_starts_with($key, "file") && !str_starts_with($key, "title")) {
+            if (!str_contains($key, "file") && !str_contains($key, "title")) {
                 $formatedCustomSettings["custom_" . $key] = $value;
             }
         }
@@ -529,10 +536,73 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
         return array_merge($properties, $advancedSettings);
     }
 
-    private function moveToIRSS(string $old_path): string
+    /**
+     * @throws ilCtrlException
+     */
+    private function moveToIRSS(string $file): void
     {
+        $form = $this->factory->input()->container()->form()->standard(
+            $this->ctrl->getLinkTarget($this, "submitMoveToIRSS"),
+            [
+                "file" => $this->factory->input()->field()->file($this->uploader, $this->plugin->txt("component_geogebra_file"))->withRequired(true)->withOnLoadCode(function ($id) use ($file) {
+                    return $this->donwloadCode($id, $file);
+                })
+            ]
+        );
 
-        // TODO: Move from old path and upload to irss, then return the uuid from irss
-        return $old_path;
+        $disclaimer = $this->factory->messageBox()->info($this->plugin->txt("disclaimer_reupload_file"));
+
+        $this->tpl->setContent($this->renderer->render([$disclaimer, $form]));
+    }
+
+    private function submitMoveToIRSS()
+    {
+        global $DIC;
+
+        $request = $DIC->http()->request();
+
+        $form = $this->factory->input()->container()->form()->standard(
+            "#",
+            [
+                "file" => $this->factory->input()->field()->file($this->uploader, $this->plugin->txt("component_geogebra_file"))->withRequired(true)
+            ]
+        );
+
+        if ($request->getMethod() == "POST") {
+            $form = $form->withRequest($request);
+
+            $result = $form->getData();
+
+            if ($result) {
+                $properties = $this->getProperties();
+
+                $properties["legacyFileName"] = $this->uploader->getInfoResult($result["file"][0])->getName();
+                $properties["fileName"] = $result["file"][0];
+
+                $this->updateElement($properties);
+                $this->returnToParent();
+            }
+        }
+
+        $disclaimer = $this->factory->messageBox()->info($this->plugin->txt("disclaimer_reupload_file"));
+
+        $this->tpl->setContent($this->renderer->render([$disclaimer, $form]));
+    }
+
+    private function donwloadCode($id, string $file): string
+    {
+        return <<<JS
+            // Crear un enlace invisible para descargar el archivo
+            var link = document.createElement('a');
+            link.href = '$file'; // URL del archivo que quieres descargar
+            link.download = '$file'.split('/').pop(); // Nombre del archivo a descargar
+            document.body.appendChild(link);
+            
+            // Forzar la descarga
+            link.click();
+            
+            // Eliminar el enlace después de la descarga
+            document.body.removeChild(link);
+        JS;
     }
 }

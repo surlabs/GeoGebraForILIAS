@@ -1,1 +1,60 @@
+config_default_values#:#Standardwerte
+config_immutables#:#Unveränderliche
 
+config_default_enableShiftDragZoom#:#Standardwert "Verschieben und Zoomen aktivieren"
+config_default_height#:#Standardhöhe
+config_default_width#:#Standardbreite
+config_default_alignment#:#Standardausrichtung
+config_appName#:#App-Name
+config_width#:#Breite
+config_height#:#Höhe
+config_borderColor#:#Randfarbe
+config_enableRightClick#:#Rechtsklick aktivieren
+config_enableLabelDrags#:#Label-Verschiebung aktivieren
+config_showResetIcon#:#Standardwert "Reset-Icon aktivieren"
+config_enableShiftDragZoom#:#Verschieben und Zoomen aktivieren
+config_showZoomButtons#:#Zoom-Schaltflächen anzeigen
+config_errorDialogsActive#:#Fehlerdialoge anzeigen
+config_showMenuBar#:#Menüleiste / Rückgängig-Schaltfläche anzeigen
+config_showToolBar#:#Werkzeugleiste anzeigen
+config_showToolBarHelp#:#Hilfe für Werkzeugleiste anzeigen
+config_showAlgebraInput#:#Algebra-Eingabe anzeigen
+config_language#:#Sprache
+config_allowStyleBar#:#Stil-Leiste anzeigen
+config_useBrowserForJS#:#Browser für JS verwenden
+config_showLogging#:#Protokollierung anzeigen
+config_capturingThreshold#:#Erfassungsschwelle
+config_enable3d#:#3D aktivieren
+config_enableCAS#:#CAS aktivieren
+config_algebraInputPosition#:#Algebra-Eingabeposition
+config_preventFocus#:#Fokus verhindern
+config_autoHeight#:#Automatische Höhe
+config_allowUpscale#:#Vergrößerung zulassen
+config_playButton#:#Wiedergabe-Schaltfläche anzeigen
+config_scale#:#Maßstab
+config_showAnimationButton#:#Animations-Schaltfläche anzeigen
+config_showFullscreenButton#:#Vollbild-Schaltfläche anzeigen
+config_showSuggestionButtons#:#Vorschlags-Schaltflächen anzeigen
+config_showStartTooltip#:#Start-Tooltip anzeigen
+config_rounding#:#Rundung anzeigen
+config_buttonShadows#:#Schaltflächenschatten
+config_buttonRounding#:#Schaltflächenrundung
+
+config_msg_success#:#Erfolg
+
+cmd_insert#:#GeoGebra einfügen
+component_title#:#Titel
+component_geogebra_file#:#GeoGebra-Datei
+component_width#:#Breite
+component_height#:#Höhe
+component_enableShiftDragZoom#:#Verschieben und Zoomen aktivieren
+component_showResetIcon#:#Reset-Icon anzeigen
+component_aligment#:#Ausrichtung
+component_left#:#Links
+component_center#:#Zentriert
+component_right#:#Rechts
+
+subtab_generic_settings#:#Allgemeine Einstellungen
+subtab_advanced_settings#:#Erweiterte Einstellungen
+
+disclaimer_reupload_file#:#Dieses GeoGebra wurde in der alten Version des Plugins erstellt. Es ist notwendig, die .ggb-Datei erneut hochzuladen. Falls Sie die Datei nicht heruntergeladen haben, keine Sorge, der Download wurde erzwungen. Überprüfen Sie Ihren Download-Ordner.
