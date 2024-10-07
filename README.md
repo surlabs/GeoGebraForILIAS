@@ -15,6 +15,7 @@ cd Customizing/global/plugins/Services/COPage/PageComponent
 
 ```bash
 git clone https://github.com/surlabs/GeoGebraForILIAS.git ./GeoGebra
+cd GeoGebra
 git checkout ilias9
 ```
 
