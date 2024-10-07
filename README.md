@@ -1,5 +1,8 @@
 
 ### Installation steps
+
+**In case that the previous plugin srGeoGebra is installed in your platform, remove the code within Customizing/global/plugins/Services/COPage/PageComponent/srGeoGebra without uninstalling it**
+
 1. Create subdirectories, if necessary for Customizing/global/plugins/Services/COPage/PageComponent/ or run the following script fron the ILIAS root
    
 ```bash
