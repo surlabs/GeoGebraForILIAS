@@ -494,6 +494,10 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
         $allSettings = GeoGebraConfig::getAll();
         $formatedCustomSettings = [];
 
+        if (!is_array($immutable_fields)) {
+            $immutable_fields = array();
+        }
+
         foreach ($allSettings as $key => $value) {
             $key = str_replace("default_", "", $key);
 
