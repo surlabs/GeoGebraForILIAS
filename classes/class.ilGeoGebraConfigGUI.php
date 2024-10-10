@@ -79,7 +79,7 @@ class ilGeoGebraConfigGUI extends ilPluginConfigGUI
      */
     private function configureImmutables()
     {
-        $this->immutableFields = GeoGebraConfig::get('immutable');
+        $this->immutableFields = is_array(GeoGebraConfig::get("immutable")) ? GeoGebraConfig::get("immutable") : [];
 
         $this->initTabs();
 
