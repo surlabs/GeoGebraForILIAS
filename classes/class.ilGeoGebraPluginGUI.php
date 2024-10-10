@@ -257,10 +257,10 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
     protected function calculateScalingHeight(&$properties_after_change): string
     {
         if (isset($properties_after_change["custom_height"])) {
-            $scaling_height = $properties_after_change["custom_height"];
+            $scaling_height = (float) $properties_after_change["custom_height"];
 
             if (isset($properties_after_change["advanced_scale"])) {
-                $scale_factor = $properties_after_change["advanced_scale"];
+                $scale_factor = (float) $properties_after_change["advanced_scale"];
 
                 if ($scale_factor < floatval(1)) {
                     $properties_after_change["custom_alignment"] = "left";
