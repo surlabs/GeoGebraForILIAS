@@ -256,10 +256,10 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
 
     protected function calculateScalingHeight(&$properties_after_change): string
     {
-        if (isset($properties_after_change["custom_height"])) {
+        if (!empty($properties_after_change["custom_height"])) {
             $scaling_height = (float) $properties_after_change["custom_height"];
 
-            if (isset($properties_after_change["advanced_scale"])) {
+            if (!empty($properties_after_change["advanced_scale"])) {
                 $scale_factor = (float) $properties_after_change["advanced_scale"];
 
                 if ($scale_factor < floatval(1)) {
@@ -533,7 +533,11 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
 
         foreach ($allSettings as $key => $occurring_value) {
             if ($key !== "immutable" && strpos($key, "default_") !== 0) {
-                $advancedSettings["advanced_" . $key] = $result[$key] ?? $occurring_value;
+                if (!empty($result[$key])) {
+                    $advancedSettings["advanced_" . $key] = $result[$key];
+                } else if (!empty($occurring_value)) {
+                    $advancedSettings["advanced_" . $key] = $occurring_value;
+                }
             }
         }
 
