@@ -130,7 +130,7 @@ class ilGeoGebraConfigGUI extends ilPluginConfigGUI
                     break;
                 case "checkbox":
                     $inputs[$key] = $this->factory->input()->field()->checkbox($this->plugin->txt('config_' . $key))
-                        ->withValue($value == "true" ?? $input[1]);
+                        ->withValue((bool)$value);
                     break;
                 case "select":
                     $inputs[$key] = $this->factory->input()->field()->select($this->plugin->txt('config_' . $key), $input[1]);
