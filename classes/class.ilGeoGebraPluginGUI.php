@@ -420,7 +420,7 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
                     break;
                 case "checkbox":
                     $inputs[$key] = $this->factory->input()->field()->checkbox($this->plugin->txt('config_' . $key))
-                        ->withValue($value == "true" ?? $input[1]);
+                        ->withValue((bool)$value);
                     break;
                 case "select":
                     $inputs[$key] = $this->factory->input()->field()->select($this->plugin->txt('config_' . $key), $input[1]);
@@ -531,12 +531,20 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
         $allSettings = GeoGebraConfig::getAll();
         $advancedSettings = [];
 
+        $advancedInputs = $this->getAdvancedInputs();
+
         foreach ($allSettings as $key => $occurring_value) {
             if ($key !== "immutable" && strpos($key, "default_") !== 0) {
-                if (!empty($result[$key])) {
-                    $advancedSettings["advanced_" . $key] = $result[$key];
-                } else if (!empty($occurring_value)) {
-                    $advancedSettings["advanced_" . $key] = $occurring_value;
+                $isCheckbox = isset($advancedInputs[$key]) && $advancedInputs[$key][0] === "checkbox";
+
+                if ($isCheckbox) {
+                    $advancedSettings["advanced_" . $key] = isset($result[$key]) ? (bool)$result[$key] : false;
+                } else {
+                    if (!empty($result[$key])) {
+                        $advancedSettings["advanced_" . $key] = $result[$key];
+                    } else if (!empty($occurring_value)) {
+                        $advancedSettings["advanced_" . $key] = $occurring_value;
+                    }
                 }
             }
         }
