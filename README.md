@@ -1,3 +1,10 @@
+<div alt style="text-align: center; transform: scale(.5);">
+	<picture>
+		<source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/surlabs/GeoGebraForILIAS/ilias8/templates/images/GitBannerGeoGebra.png" />
+		<img alt="STACK" src="https://raw.githubusercontent.com/surlabs/GeoGebraForILIAS/ilias8/templates/images/GitBannerGeoGebra.png" />
+	</picture>
+</div>
+
 ## Installation & Update
 
 ### Software Requirements
