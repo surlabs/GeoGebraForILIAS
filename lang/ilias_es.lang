@@ -39,6 +39,10 @@ config_showStartTooltip#:#Mostrar consejo de inicio
 config_rounding#:#Mostrar redondeo
 config_buttonShadows#:#Sombras del botón
 config_buttonRounding#:#Redondeo del botón
+config_tools#:#Herramientas
+config_fix_srgeogebra_objects#:#Reparar objetos SrGeogebra
+fix_srgeogebra_objects_error#:#Ha ocurrido un error al intentar reparar los objetos SrGeogebra y convertirlos en objetos Geogebra.
+fix_srgeogebra_objects_success#:#Los objetos SrGeogebra han sido reparados y convertidos en objetos Geogebra.
 
 config_msg_success#:#Éxito
 

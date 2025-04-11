@@ -39,6 +39,10 @@ config_showStartTooltip#:#Show Start Tooltip
 config_rounding#:#Show Rounding
 config_buttonShadows#:#Button Shadows
 config_buttonRounding#:#Button Rounding
+config_tools#:#Tools
+config_fix_srgeogebra_objects#:#Fix SrGeogebra Objects
+fix_srgeogebra_objects_error#:#An error occurred while trying to fix the SrGeogebra objects and convert them into Geogebra objects.ç
+fix_srgeogebra_objects_success#:#The SrGeogebra objects have been fixed and converted into Geogebra objects.
 
 config_msg_success#:#Success
 

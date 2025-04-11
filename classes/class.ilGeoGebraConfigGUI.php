@@ -59,6 +59,7 @@ class ilGeoGebraConfigGUI extends ilPluginConfigGUI
     {
         $this->tabs->addTab('default_values', $this->plugin->txt('config_default_values'), $this->ctrl->getLinkTarget($this, 'configureDefaultValues'));
         $this->tabs->addTab('immutables', $this->plugin->txt('config_immutables'), $this->ctrl->getLinkTarget($this, 'configureImmutables'));
+        $this->tabs->addTab('tools', $this->plugin->txt('config_tools'), $this->ctrl->getLinkTarget($this, 'configureTools'));
     }
 
     /**
@@ -238,5 +239,67 @@ class ilGeoGebraConfigGUI extends ilPluginConfigGUI
             "buttonShadows" => ["checkbox", false],
             "buttonRounding" => ["text", "0.2"],
         );
+    }
+
+    /**
+     * @throws ilCtrlException
+     */
+    public function configureTools(): void
+    {
+        $this->initTabs();
+
+        $this->tabs->activateTab('tools');
+
+        $fix_srgeogebra_objects = $this->factory->button()->standard(
+            $this->plugin->txt('config_fix_srgeogebra_objects'),
+            $this->ctrl->getLinkTarget($this, 'fixSrGeoGebraObjects')
+        );
+
+        $this->tpl->setContent($this->renderer->render([$fix_srgeogebra_objects]));
+    }
+
+    public function fixSrGeoGebraObjects(): void
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        try {
+            if ($db->tableExists('page_object')) {
+                $query = "SELECT page_id, parent_id, content, rendered_content, lang FROM page_object WHERE content LIKE " . $db->quote('%SrGeogebra%', 'text') . " OR rendered_content LIKE " . $db->quote('%SrGeogebra%', 'text');
+
+                $res = $db->query($query);
+
+                while ($row = $db->fetchAssoc($res)) {
+                    $updatedContent = str_replace('SrGeogebra', 'GeoGebra', $row['content']);
+                    $updatedRenderedContent = str_replace('SrGeogebra', 'GeoGebra', $row['rendered_content']);
+
+                    if ($updatedContent !== $row['content'] || $updatedRenderedContent !== $row['rendered_content']) {
+                        $updateQuery = "UPDATE page_object SET content = " . $db->quote($updatedContent, 'text') . ", rendered_content = " . $db->quote($updatedRenderedContent, 'text') . "WHERE page_id = " . $db->quote($row['page_id'], 'integer') . " AND parent_id = " . $db->quote($row['parent_id'], 'integer') . " AND lang = " . $db->quote($row['lang'], 'text');
+                        $db->manipulate($updateQuery);
+                    }
+                }
+            }
+
+            if ($db->tableExists('page_history')) {
+                $query = "SELECT page_id, nr, user_id, content  FROM page_history WHERE content LIKE " . $db->quote('%SrGeogebra%', 'text');
+
+                $res = $db->query($query);
+
+                while ($row = $db->fetchAssoc($res)) {
+                    $updatedContent = str_replace('SrGeogebra', 'GeoGebra', $row['content']);
+
+                    if ($updatedContent !== $row['content']) {
+                        $updateQuery = "UPDATE page_history  SET content = " . $db->quote($updatedContent, 'text') . "  WHERE page_id = " . $db->quote($row['page_id'], 'integer') . " AND nr = " . $db->quote($row['nr'], 'integer') . " AND user_id = " . $db->quote($row['user_id'], 'integer');
+                        $db->manipulate($updateQuery);
+                    }
+                }
+            }
+
+            $DIC->ui()->mainTemplate()->setOnScreenMessage("success", $this->plugin->txt('fix_srgeogebra_objects_success'), true);
+        } catch (Exception $e) {
+            $DIC->ui()->mainTemplate()->setOnScreenMessage("failure", $this->plugin->txt('fix_srgeogebra_objects_error'), true);
+        }
+
+        $this->ctrl->redirect($this, 'configureTools');
     }
 }

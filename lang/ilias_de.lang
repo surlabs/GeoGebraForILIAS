@@ -39,6 +39,10 @@ config_showStartTooltip#:#Start-Tooltip anzeigen
 config_rounding#:#Rundung anzeigen
 config_buttonShadows#:#Schaltflächenschatten
 config_buttonRounding#:#Schaltflächenrundung
+config_tools#:#Werkzeuge
+config_fix_srgeogebra_objects#:#SrGeogebra-Objekte reparieren
+fix_srgeogebra_objects_error#:#Beim Versuch, die SrGeogebra-Objekte zu reparieren und in Geogebra-Objekte umzuwandeln, ist ein Fehler aufgetreten.
+fix_srgeogebra_objects_success#:#Die SrGeogebra-Objekte wurden repariert und in Geogebra-Objekte umgewandelt.
 
 config_msg_success#:#Erfolg
 
