@@ -291,7 +291,12 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
 
         if (!file_exists($old_path)) {
             $irss = $DIC->resourceStorage();
-            $file_name = $irss->consume()->src(new ResourceIdentification($a_properties["fileName"]))->getSrc();
+            try {
+                $file_name = $irss->consume()->src(new ResourceIdentification($a_properties["fileName"]))->getSrc();
+            } catch (Exception $e) {
+                $DIC->logger()->root()->write("GeoGebraError: File not found in $old_path and in IRSS (" . $a_properties["fileName"] . ")");
+                $file_name = $old_path;
+            }
         } else {
             $file_name = $old_path;
         }
