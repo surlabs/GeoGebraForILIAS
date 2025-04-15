@@ -270,8 +270,8 @@ class ilGeoGebraConfigGUI extends ilPluginConfigGUI
                 $res = $db->query($query);
 
                 while ($row = $db->fetchAssoc($res)) {
-                    $updatedContent = str_replace('SrGeogebra', 'GeoGebra', $row['content']);
-                    $updatedRenderedContent = str_replace('SrGeogebra', 'GeoGebra', $row['rendered_content']);
+                    $updatedContent = str_replace('SrGeogebra', 'GeoGebra', $row['content'] ?? '');
+                    $updatedRenderedContent = str_replace('SrGeogebra', 'GeoGebra', $row['rendered_content'] ?? '');
 
                     if ($updatedContent !== $row['content'] || $updatedRenderedContent !== $row['rendered_content']) {
                         $updateQuery = "UPDATE page_object SET content = " . $db->quote($updatedContent, 'text') . ", rendered_content = " . $db->quote($updatedRenderedContent, 'text') . "WHERE page_id = " . $db->quote($row['page_id'], 'integer') . " AND parent_id = " . $db->quote($row['parent_id'], 'integer') . " AND lang = " . $db->quote($row['lang'], 'text');
@@ -286,7 +286,7 @@ class ilGeoGebraConfigGUI extends ilPluginConfigGUI
                 $res = $db->query($query);
 
                 while ($row = $db->fetchAssoc($res)) {
-                    $updatedContent = str_replace('SrGeogebra', 'GeoGebra', $row['content']);
+                    $updatedContent = str_replace('SrGeogebra', 'GeoGebra', $row['content'] ?? '');
 
                     if ($updatedContent !== $row['content']) {
                         $updateQuery = "UPDATE page_history  SET content = " . $db->quote($updatedContent, 'text') . "  WHERE page_id = " . $db->quote($row['page_id'], 'integer') . " AND nr = " . $db->quote($row['nr'], 'integer') . " AND user_id = " . $db->quote($row['user_id'], 'integer');
