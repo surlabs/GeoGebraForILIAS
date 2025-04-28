@@ -102,6 +102,7 @@ class ilGeoGebraConfigGUI extends ilPluginConfigGUI
             $form = $form->withRequest($this->request);
             $result = $form->getData();
             if ($result) {
+
                 $saving_info = $this->save($type);
 
                 $form = $this->factory->input()->container()->form()->standard(
@@ -142,10 +143,10 @@ class ilGeoGebraConfigGUI extends ilPluginConfigGUI
 
                     break;
                 case "color":
-                    $inputs[$key] = $this->factory->input()->field()->text($this->plugin->txt('config_' . $key))
-                        ->withValue($value != "" ? (string) $value : $input[1])->withOnLoadCode(function ($id) {
-                            return "$('#$id').attr('type', 'color').width('50px');";
-                        });
+                    if ($value instanceof \ILIAS\Data\Color) $value = $value->asHex();
+
+                    $inputs[$key] = $this->factory->input()->field()->colorPicker($this->plugin->txt('config_' . $key))
+                        ->withValue($value !== "" ? $value : $input[1]);
                     break;
                 case "text":
                     $inputs[$key] = $this->factory->input()->field()->text($this->plugin->txt('config_' . $key))
@@ -153,10 +154,11 @@ class ilGeoGebraConfigGUI extends ilPluginConfigGUI
                     break;
             }
 
-            $inputs[$key] = $inputs[$key]->withAdditionalTransformation($this->refinery->custom()->transformation(
-                function ($v) use ($key) {
-                    GeoGebraConfig::set($key, $v);
-                }
+            $inputs[$key] = $inputs[$key]->withAdditionalTransformation(
+                $this->refinery->custom()->transformation(
+                    function ($v) use ($key, $input) {
+                        GeoGebraConfig::set($key, $input[0] === "color" && $v instanceof \ILIAS\Data\Color ? $v->asHex() : $v);
+                    }
             ));
         }
 
@@ -189,6 +191,7 @@ class ilGeoGebraConfigGUI extends ilPluginConfigGUI
         if ($type == "immutable") {
             GeoGebraConfig::set('immutable', $this->immutableFields);
         }
+
 
         GeoGebraConfig::save();
         return $this->renderer->render($this->factory->messageBox()->success($this->plugin_object->txt('config_msg_success')));
