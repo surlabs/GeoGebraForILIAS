@@ -303,7 +303,7 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
 
         if (!empty($iframe_id = filter_input(INPUT_GET, "iframe"))) {
             if ($iframe_id === $id) {
-                $tpl = new ilTemplate("tpl.geogebra_iframe.html", true, true, "Customizing/global/plugins/Services/COPage/PageComponent/GeoGebra");
+                $tpl = new ilTemplate("tpl.geogebra_iframe.html", true, true, "public/Customizing/global/plugins/Services/COPage/PageComponent/GeoGebra");
 
                 $tpl->setVariable("ID", $id);
 
@@ -327,7 +327,7 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
                 return " ";
             }
         } else {
-            $tpl = new ilTemplate("tpl.geogebra.html", true, true, "Customizing/global/plugins/Services/COPage/PageComponent/GeoGebra");
+            $tpl = new ilTemplate("tpl.geogebra.html", true, true, "public/Customizing/global/plugins/Services/COPage/PageComponent/GeoGebra");
 
 
             $tpl->setVariable("ID", $id);
@@ -377,8 +377,6 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
 
         $inputs["title"] = $this->factory->input()->field()->text($this->plugin->txt("component_title"))
             ->withRequired(true)->withValue($properties["title"] ?? "");
-
-
 
         $inputs["file"] = $this->factory->input()->field()->file($this->uploader, $this->plugin->txt("component_geogebra_file"))
             ->withRequired(true);
@@ -436,10 +434,8 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
 
                     break;
                 case "color":
-                    $inputs[$key] = $this->factory->input()->field()->text($this->plugin->txt('config_' . $key))
-                        ->withValue($value != "" ? (string) $value : $input[1])->withOnLoadCode(function ($id) {
-                            return "$('#$id').attr('type', 'color').width('50px');";
-                        });
+                    $inputs[$key] = $this->factory->input()->field()->colorPicker($this->plugin->txt('config_' . $key))
+                        ->withValue($value != "" ? (string) $value : $input[1]);
                     break;
                 case "text":
                     $inputs[$key] = $this->factory->input()->field()->text($this->plugin->txt('config_' . $key))
