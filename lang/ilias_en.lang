@@ -1,6 +1,6 @@
 config_default_values#:#Default values
 config_immutables#:#Immutables
-
+config_default_showResetIcon#:#Show Reset Icon
 config_default_enableShiftDragZoom#:#Default "Enable Dragging And Zooming " Value
 config_default_height#:#Default Height
 config_default_width#:#Default Width

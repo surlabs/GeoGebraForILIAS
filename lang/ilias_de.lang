@@ -1,6 +1,6 @@
 config_default_values#:#Standardwerte
 config_immutables#:#Unveränderliche
-
+config_default_showResetIcon#:#Reset-Icon anzeigen
 config_default_enableShiftDragZoom#:#Standardwert "Verschieben und Zoomen aktivieren"
 config_default_height#:#Standardhöhe
 config_default_width#:#Standardbreite

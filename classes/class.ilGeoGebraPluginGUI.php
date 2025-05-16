@@ -319,6 +319,24 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
                 $tpl->setVariable("PLUGIN_DIR", "Customizing/global/plugins/Services/COPage/PageComponent/GeoGebra");
                 $tpl->setVariable("FILE_NAME", $file_name);
 
+                GeoGebraConfig::load();
+                $allSettings = GeoGebraConfig::getAll();
+                $immutables = !empty($allSettings["immutable"]) ? $allSettings["immutable"] : [];
+
+                foreach ($immutables as $value) {
+                    $key = "default_" . $value;
+
+                    if (isset($a_properties[$key])) {
+                        $a_properties[$key] = $allSettings[$value];
+                    }
+
+                    $key = "advanced_" . $value;
+
+                    if (isset($a_properties[$key])) {
+                        $a_properties[$key] = $allSettings[$value];
+                    }
+                }
+
                 $tpl->setVariable("PROPERTIES", json_encode($a_properties));
 
                 echo $tpl->get();
@@ -407,6 +425,16 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
             "right" => $this->plugin->txt("component_right")
         ])->withValue($properties["custom_alignment"] ?? "left");
 
+        $immutable_fields = GeoGebraConfig::get("immutable");
+
+        if (!empty($immutable_fields) && is_array($immutable_fields)) {
+            foreach ($immutable_fields as $field) {
+                if (isset($inputs[$field])) {
+                    $inputs[$field] = $inputs[$field]->withDisabled(true);
+                }
+            }
+        }
+
 
         return $inputs;
     }
@@ -414,6 +442,7 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
     private function buildFormAdvanced(?array $properties = null): array
     {
         $inputs = $this->getAdvancedInputs();
+        $immutable_fields = GeoGebraConfig::get("immutable");
 
         foreach ($inputs as $key => $input) {
             $value = $properties["advanced_" . $key] ?? "";
@@ -445,6 +474,14 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
                     $inputs[$key] = $this->factory->input()->field()->text($this->plugin->txt('config_' . $key))
                         ->withValue($value != "" ? (string) $value : $input[1]);
                     break;
+            }
+        }
+
+        if (!empty($immutable_fields) && is_array($immutable_fields)) {
+            foreach ($immutable_fields as $field) {
+                if (isset($inputs[$field])) {
+                    $inputs[$field] = $inputs[$field]->withDisabled(true);
+                }
             }
         }
 
@@ -495,23 +532,14 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
     protected function mergeCustomSettings(&$properties, array $result): array
     {
         GeoGebraConfig::load();
-        $immutable_fields = GeoGebraConfig::get("immutable");
         $allSettings = GeoGebraConfig::getAll();
         $formatedCustomSettings = [];
-
-        if (!is_array($immutable_fields)) {
-            $immutable_fields = array();
-        }
 
         foreach ($allSettings as $key => $value) {
             $key = str_replace("default_", "", $key);
 
             if (isset($result[$key])) {
-                if (in_array($key, $immutable_fields)) {
-                    $formatedCustomSettings["custom_" . $key] = $value;
-                } else {
-                    $formatedCustomSettings["custom_" . $key] = $result[$key];
-                }
+                $formatedCustomSettings["custom_" . $key] = $result[$key];
 
                 unset($result[$key]);
             }
