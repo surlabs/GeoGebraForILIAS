@@ -1,6 +1,6 @@
 config_default_values#:#Valores por defecto
 config_immutables#:#Inmutables
-
+config_default_showResetIcon#:#Mostrar ícono de reinicio
 config_default_enableShiftDragZoom#:#Valor por defecto "Habilitar arrastrar y hacer zoom"
 config_default_height#:#Altura por defecto
 config_default_width#:#Ancho por defecto
