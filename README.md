@@ -1,9 +1,5 @@
-<div alt style="text-align: center; transform: scale(.5);">
-	<picture>
-		<source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/surlabs/GeoGebraForILIAS/ilias9/templates/images/GitBannerGeoGebra.png" />
-		<img alt="STACK" src="https://raw.githubusercontent.com/surlabs/GeoGebraForILIAS/ilias9/templates/images/GitBannerGeoGebra.png" />
-	</picture>
-</div>
+![GeoGebra](https://github.com/user-attachments/assets/20b2d517-7781-492a-8693-c366f7bf71ca)
+
 
 # GeoGebra Page Component Plugin for ILIAS 9
 
