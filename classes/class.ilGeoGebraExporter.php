@@ -31,7 +31,7 @@ class ilGeoGebraExporter extends ilPageComponentPluginExporter
 
         copy($path, $export_gbb_file);
 
-        return "<fileName>$path</fileName>";
+        return "<fileName>$legacyFileName</fileName>";
     }
 
     public function getXmlRepresentation(string $a_entity, string $a_schema_version, string $a_id): string
