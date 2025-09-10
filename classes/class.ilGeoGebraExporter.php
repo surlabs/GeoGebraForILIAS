@@ -27,7 +27,7 @@ class ilGeoGebraExporter extends ilPageComponentPluginExporter
 
         $export_gbb_file = $this->getAbsoluteExportDirectory() . "/" . $legacyFileName;
 
-        ilFileUtils::makeDir(dirname($export_gbb_file));
+        ilFileUtils::makeDirParents(dirname($export_gbb_file));
 
         copy($path, $export_gbb_file);
 
