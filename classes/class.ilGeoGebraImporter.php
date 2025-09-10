@@ -4,6 +4,8 @@ declare(strict_types=1);
  * Disclaimer: This file is part of the GeoGebra Repository Object plugin for ILIAS.
  */
 
+use ILIAS\Filesystem\Stream\Streams;
+
 /**
  * Class ilGeoGebraImporter
  * @authors Jesús Copado, Daniel Cazalla, Saúl Díaz, Juan Aguilar <info@surlabs.es>
@@ -16,6 +18,8 @@ class ilGeoGebraImporter extends ilPageComponentPluginImporter
         string $a_xml,
         ilImportMapping $a_mapping
     ): void {
+        global $DIC;
+
         $new_id = self::getPCMapping($a_id, $a_mapping);
 
         $properties = self::getPCProperties($new_id);
@@ -42,16 +46,23 @@ class ilGeoGebraImporter extends ilPageComponentPluginImporter
             $set_num++;
         } while (is_dir($import_gbb_set_dir));
 
-        $dest_gbb_file = ILIAS_WEB_DIR . '/' . CLIENT_ID . "/geogebra/" . $properties["legacyFileName"];
-
         if (count($gbb_import_files) > 0) {
             $gbb_file = $gbb_import_files[0];
 
-            ilFileUtils::makeDir(dirname($dest_gbb_file));
+            $irss = $DIC->resourceStorage();
+            $stakeholder = new StorageStakeHolder();
 
-            copy($gbb_file, $dest_gbb_file);
+            $rs = fopen($gbb_file, 'r');
 
-            $properties["fileName"] = $properties["legacyFileName"];
+            $stream = Streams::ofResource($rs);
+
+            $resource = $irss->manage()->stream($stream, $stakeholder);
+
+            $properties["fileName"] = $resource->serialize();
+
+            if (file_exists($gbb_file)) {
+                unlink($gbb_file);
+            }
         }
 
         self::setPCProperties($new_id, $properties);
