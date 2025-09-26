@@ -19,10 +19,18 @@ GeogebraPageComponent = {
                     var adjustedKey = k.replace("advanced_", "");
                     var value = properties[k];
 
-                    // Border color additionally requires a #
                     if (k.startsWith("advanced_borderColor")) {
-                        value = "#" + properties[k];
+                        let raw = properties[k].trim();
+
+                        if (/^[0-9A-Fa-f]{6}$/.test(raw)) {
+                            value = "#" + raw;
+                        } else if (/^#[0-9A-Fa-f]{6}$/.test(raw)) {
+                            value = raw;
+                        } else {
+                            value = raw;
+                        }
                     }
+
                     adjustedProperties[adjustedKey] = value;
                 }
             }
