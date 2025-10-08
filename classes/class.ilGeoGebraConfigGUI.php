@@ -157,6 +157,10 @@ class ilGeoGebraConfigGUI extends ilPluginConfigGUI
             $inputs[$key] = $inputs[$key]->withAdditionalTransformation(
                 $this->refinery->custom()->transformation(
                     function ($v) use ($key, $input) {
+                        if ($key == "scale") {
+                            $v = preg_replace('/[^0-9.]/', '', $v);
+                            $v = $v != "" ? floatval($v) : 1;
+                        }
                         GeoGebraConfig::set($key, $input[0] === "color" && $v instanceof \ILIAS\Data\Color ? $v->asHex() : $v);
                     }
             ));
@@ -233,7 +237,7 @@ class ilGeoGebraConfigGUI extends ilPluginConfigGUI
             "autoHeight" => ["checkbox", false],
             "allowUpscale" => ["checkbox", false],
             "playButton" => ["checkbox", false],
-            "scale" => ["numeric", 1],
+            "scale" => ["text", "1"],
             "showAnimationButton" => ["checkbox", false],
             "showFullscreenButton" => ["checkbox", false],
             "showSuggestionButtons" => ["checkbox", false],
