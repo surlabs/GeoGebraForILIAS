@@ -511,7 +511,7 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
             "autoHeight" => ["checkbox", false],
             "allowUpscale" => ["checkbox", false],
             "playButton" => ["checkbox", false],
-            "scale" => ["numeric", 1],
+            "scale" => ["text", "1"],
             "showAnimationButton" => ["checkbox", false],
             "showFullscreenButton" => ["checkbox", false],
             "showSuggestionButtons" => ["checkbox", false],
@@ -569,7 +569,16 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
                 if ($isCheckbox) {
                     $advancedSettings["advanced_" . $key] = isset($result[$key]) ? (bool)$result[$key] : false;
                 } else {
+                    if ($key == "borderColor") {
+                        $result[$key] = $result[$key]->asHex();
+                    }
+
                     if (!empty($result[$key])) {
+                        if ($key == "scale") {
+                            $result[$key] = preg_replace('/[^0-9.]/', '', $result[$key]);
+                            $result[$key] = $result[$key] != "" ? floatval($result[$key]) : $occurring_value;
+                        }
+
                         $advancedSettings["advanced_" . $key] = $result[$key];
                     } else if (!empty($occurring_value)) {
                         $advancedSettings["advanced_" . $key] = $occurring_value;
