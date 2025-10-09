@@ -1,7 +1,7 @@
 <div alt style="text-align: center; transform: scale(.5);">
 	<picture>
-		<source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/surlabs/GeoGebraForILIAS/ilias9/templates/images/GitBannerGeoGebra.png" />
-		<img alt="STACK" src="https://raw.githubusercontent.com/surlabs/GeoGebraForILIAS/ilias9/templates/images/GitBannerGeoGebra.png" />
+		<source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/surlabs/GeoGebraForILIAS/ilias10/templates/images/GitBannerGeoGebra.png" />
+		<img alt="STACK" src="https://raw.githubusercontent.com/surlabs/GeoGebraForILIAS/ilias10/templates/images/GitBannerGeoGebra.png" />
 	</picture>
 </div>
 
@@ -31,7 +31,7 @@ cd Customizing/global/plugins/Services/COPage/PageComponent
 ```bash
 git clone https://github.com/surlabs/GeoGebraForILIAS.git ./GeoGebra
 cd GeoGebra
-git checkout ilias9
+git checkout ilias10
 ```
 
 Ensure you run composer and npm install at platform root before you install/update the plugin
