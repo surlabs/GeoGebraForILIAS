@@ -21,11 +21,11 @@ If the srGeoGebra plugin is installed on your platform, **remove the code found 
 1. Create subdirectories, if necessary for Customizing/global/plugins/Services/COPage/PageComponent/ or run the following script fron the ILIAS root
    
 ```bash
-mkdir -p Customizing/global/plugins/Services/COPage/PageComponent
-cd Customizing/global/plugins/Services/COPage/PageComponent
+mkdir -p public/Customizing/global/plugins/Services/COPage/PageComponent
+cd public/Customizing/global/plugins/Services/COPage/PageComponent
 ```
 
-3. In Customizing/global/plugins/Services/COPage/PageComponent/
+3. In public/Customizing/global/plugins/Services/COPage/PageComponent/
 4. Then, execute:
 
 ```bash
