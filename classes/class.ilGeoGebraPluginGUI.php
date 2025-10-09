@@ -4,6 +4,7 @@ declare(strict_types=1);
  * Disclaimer: This file is part of the GeoGebra Repository Object plugin for ILIAS.
  */
 
+use ILIAS\Data\Color;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
@@ -569,7 +570,7 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
                 if ($isCheckbox) {
                     $advancedSettings["advanced_" . $key] = isset($result[$key]) ? (bool)$result[$key] : false;
                 } else {
-                    if ($key == "borderColor") {
+                    if ($key == "borderColor" && isset($result[$key]) && $result[$key] instanceof Color) {
                         $result[$key] = $result[$key]->asHex();
                     }
 
