@@ -146,7 +146,7 @@ class ilGeoGebraConfigGUI extends ilPluginConfigGUI
                     if ($value instanceof \ILIAS\Data\Color) $value = $value->asHex();
 
                     $inputs[$key] = $this->factory->input()->field()->colorPicker($this->plugin->txt('config_' . $key))
-                        ->withValue($value !== "" ? $value : $input[1]);
+                        ->withValue(!empty($value) ? $value : $input[1]);
                     break;
                 case "text":
                     $inputs[$key] = $this->factory->input()->field()->text($this->plugin->txt('config_' . $key))
