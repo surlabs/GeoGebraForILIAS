@@ -4,7 +4,6 @@ declare(strict_types=1);
  * Disclaimer: This file is part of the GeoGebra Repository Object plugin for ILIAS.
  */
 
-use ILIAS\Data\Color;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
@@ -320,24 +319,6 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
                 $tpl->setVariable("PLUGIN_DIR", "Customizing/global/plugins/Services/COPage/PageComponent/GeoGebra");
                 $tpl->setVariable("FILE_NAME", $file_name);
 
-                GeoGebraConfig::load();
-                $allSettings = GeoGebraConfig::getAll();
-                $immutables = !empty($allSettings["immutable"]) ? $allSettings["immutable"] : [];
-
-                foreach ($immutables as $value) {
-                    $key = "default_" . $value;
-
-                    if (isset($a_properties[$key])) {
-                        $a_properties[$key] = $allSettings[$value];
-                    }
-
-                    $key = "advanced_" . $value;
-
-                    if (isset($a_properties[$key])) {
-                        $a_properties[$key] = $allSettings[$value];
-                    }
-                }
-
                 $tpl->setVariable("PROPERTIES", json_encode($a_properties));
 
                 echo $tpl->get();
@@ -348,14 +329,31 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
         } else {
             $tpl = new ilTemplate("tpl.geogebra.html", true, true, "public/Customizing/global/plugins/Services/COPage/PageComponent/GeoGebra");
 
-
             $tpl->setVariable("ID", $id);
 
-            if (isset($_SERVER["REQUEST_URI"])) {
-                $tpl->setVariable("URL", filter_input(INPUT_SERVER, "REQUEST_URI") . '&iframe=' . $id);
+            // Prevent 'Inception' bug during Drag & Drop AJAX re-rendering
+            $url = filter_input(INPUT_SERVER, "REQUEST_URI") ?? '';
+
+            // If an AJAX request (invokeServer) is detected, fallback to the real referring page URL
+            if (strpos($url, 'invokeServer') !== false && isset($_SERVER['HTTP_REFERER'])) {
+                $url = $_SERVER['HTTP_REFERER'];
             }
 
+            // Strip any existing iframe parameter to prevent duplication
+            $url = preg_replace('/(&|\?)iframe=srgg_[0-9]+/', '', $url);
+
+            // Append the correct iframe parameter
+            $separator = (strpos($url, '?') !== false) ? '&' : '?';
+            $tpl->setVariable("URL", $url . $separator . 'iframe=' . $id);
+
             $tpl->setVariable("SCALE_WRAPPER_HEIGHT", $scale_height);
+
+            // Apply inline 'pointer-events: none' in edit mode to allow ILIAS native Drag & Drop
+            if ($a_mode === 'edit') {
+                $tpl->setVariable("EDIT_MODE_STYLE", "pointer-events: none;");
+            } else {
+                $tpl->setVariable("EDIT_MODE_STYLE", "");
+            }
 
             return $tpl->get();
         }
@@ -424,16 +422,6 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
             "right" => $this->plugin->txt("component_right")
         ])->withValue($properties["custom_alignment"] ?? "left");
 
-        $immutable_fields = GeoGebraConfig::get("immutable");
-
-        if (!empty($immutable_fields) && is_array($immutable_fields)) {
-            foreach ($immutable_fields as $field) {
-                if (isset($inputs[$field])) {
-                    $inputs[$field] = $inputs[$field]->withDisabled(true);
-                }
-            }
-        }
-
 
         return $inputs;
     }
@@ -441,7 +429,6 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
     private function buildFormAdvanced(?array $properties = null): array
     {
         $inputs = $this->getAdvancedInputs();
-        $immutable_fields = GeoGebraConfig::get("immutable");
 
         foreach ($inputs as $key => $input) {
             $value = $properties["advanced_" . $key] ?? "";
@@ -471,14 +458,6 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
                     $inputs[$key] = $this->factory->input()->field()->text($this->plugin->txt('config_' . $key))
                         ->withValue($value != "" ? (string) $value : $input[1]);
                     break;
-            }
-        }
-
-        if (!empty($immutable_fields) && is_array($immutable_fields)) {
-            foreach ($immutable_fields as $field) {
-                if (isset($inputs[$field])) {
-                    $inputs[$field] = $inputs[$field]->withDisabled(true);
-                }
             }
         }
 
@@ -512,7 +491,7 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
             "autoHeight" => ["checkbox", false],
             "allowUpscale" => ["checkbox", false],
             "playButton" => ["checkbox", false],
-            "scale" => ["text", "1"],
+            "scale" => ["numeric", 1],
             "showAnimationButton" => ["checkbox", false],
             "showFullscreenButton" => ["checkbox", false],
             "showSuggestionButtons" => ["checkbox", false],
@@ -529,14 +508,23 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
     protected function mergeCustomSettings(&$properties, array $result): array
     {
         GeoGebraConfig::load();
+        $immutable_fields = GeoGebraConfig::get("immutable");
         $allSettings = GeoGebraConfig::getAll();
         $formatedCustomSettings = [];
+
+        if (!is_array($immutable_fields)) {
+            $immutable_fields = array();
+        }
 
         foreach ($allSettings as $key => $value) {
             $key = str_replace("default_", "", $key);
 
             if (isset($result[$key])) {
-                $formatedCustomSettings["custom_" . $key] = $result[$key];
+                if (in_array($key, $immutable_fields)) {
+                    $formatedCustomSettings["custom_" . $key] = $value;
+                } else {
+                    $formatedCustomSettings["custom_" . $key] = $result[$key];
+                }
 
                 unset($result[$key]);
             }
@@ -570,16 +558,7 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
                 if ($isCheckbox) {
                     $advancedSettings["advanced_" . $key] = isset($result[$key]) ? (bool)$result[$key] : false;
                 } else {
-                    if ($key == "borderColor" && isset($result[$key]) && $result[$key] instanceof Color) {
-                        $result[$key] = $result[$key]->asHex();
-                    }
-
                     if (!empty($result[$key])) {
-                        if ($key == "scale") {
-                            $result[$key] = preg_replace('/[^0-9.]/', '', $result[$key]);
-                            $result[$key] = $result[$key] != "" ? floatval($result[$key]) : $occurring_value;
-                        }
-
                         $advancedSettings["advanced_" . $key] = $result[$key];
                     } else if (!empty($occurring_value)) {
                         $advancedSettings["advanced_" . $key] = $occurring_value;
@@ -647,17 +626,15 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
     private function donwloadCode($id, string $file): string
     {
         return <<<JS
-            // Crear un enlace invisible para descargar el archivo
-            var link = document.createElement('a');
-            link.href = '$file'; // URL del archivo que quieres descargar
-            link.download = '$file'.split('/').pop(); // Nombre del archivo a descargar
-            document.body.appendChild(link);
-            
-            // Forzar la descarga
-            link.click();
-            
-            // Eliminar el enlace después de la descarga
-            document.body.removeChild(link);
-        JS;
+     // Create an invisible link to download the file
+     var link = document.createElement('a');
+     link.href = '$file'; //URL of the file you want to download
+     link.download = '$file'.split('/').pop(); //Name of the file to download
+     document.body.appendChild(link);
+    // Force the download
+     link.click();
+     // Remove the link after downloading 
+document.body.removeChild(link);
+JS;
     }
 }
