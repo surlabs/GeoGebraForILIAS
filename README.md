@@ -1,9 +1,4 @@
-<div alt style="text-align: center; transform: scale(.5);">
-	<picture>
-		<source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/surlabs/GeoGebraForILIAS/release_10/templates/images/GitBannerGeoGebra.png" />
-		<img alt="STACK" src="https://raw.githubusercontent.com/surlabs/GeoGebraForILIAS/release_10/templates/images/GitBannerGeoGebra.png" />
-	</picture>
-</div>
+![GeoGebra](https://github.com/user-attachments/assets/20b2d517-7781-492a-8693-c366f7bf71ca)
 
 # GeoGebra Page Component Plugin for ILIAS 10
 
@@ -50,7 +45,7 @@ composer install --no-dev
 - Bug Reports: [Mantis](https://www.ilias.de/mantis) (Choose project "ILIAS plugins" and filter by category "GeoGebra")
 
 # Version History
-* The version 10.x.x for **ILIAS 10** developed and maintained by SURLABS can be found in the Github branch **ilias10**
-* The version 9.x.x for **ILIAS 9** developed and maintained by SURLABS can be found in the Github branch **ilias9**
-* The version 8.x.x for **ILIAS 8** developed and maintained by SURLABS can be found in the Github branch **ilias8**
+* The version 10.x.x for **ILIAS 10** developed and maintained by SURLABS can be found in the Github branch **release_10**
+* The version 9.x.x for **ILIAS 9** developed and maintained by SURLABS can be found in the Github branch **release_9**
+* The version 8.x.x for **ILIAS 8** developed and maintained by SURLABS can be found in the Github branch **release_8**
 * The previous plugin versions for ILIAS <8 is archived. It can be found in https://github.com/fluxapps/srGeoGebra
