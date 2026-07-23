@@ -1,6 +1,6 @@
 ![GeoGebra](https://github.com/user-attachments/assets/20b2d517-7781-492a-8693-c366f7bf71ca)
 
-# GeoGebra Page Component Plugin for ILIAS 10
+# GeoGebra Page Component Plugin for ILIAS 11
 
 Welcome to the official repository for GeoGebra Page Component Plugin for ILIAS
 This Open Source ILIAS Plugin based on the previous srGeoGebra plugin, has been reworked and is currently maintained by [SURLABS](https://www.surlabs.com)
@@ -26,7 +26,7 @@ cd public/Customizing/global/plugins/Services/COPage/PageComponent
 ```bash
 git clone https://github.com/surlabs/GeoGebraForILIAS.git ./GeoGebra
 cd GeoGebra
-git checkout release_10
+git checkout dev_11
 ```
 
 Ensure you run composer and npm install at platform root before you install/update the plugin
@@ -45,6 +45,7 @@ composer install --no-dev
 - Bug Reports: [Mantis](https://www.ilias.de/mantis) (Choose project "ILIAS plugins" and filter by category "GeoGebra")
 
 # Version History
+* The version 11.x.x for **ILIAS 11** developed and maintained by SURLABS can be found in the Github branch **dev_11**
 * The version 10.x.x for **ILIAS 10** developed and maintained by SURLABS can be found in the Github branch **release_10**
 * The version 9.x.x for **ILIAS 9** developed and maintained by SURLABS can be found in the Github branch **release_9**
 * The version 8.x.x for **ILIAS 8** developed and maintained by SURLABS can be found in the Github branch **release_8**
