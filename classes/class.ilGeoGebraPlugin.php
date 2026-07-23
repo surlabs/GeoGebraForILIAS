@@ -11,9 +11,9 @@ declare(strict_types=1);
 class ilGeoGebraPlugin extends ilPageComponentPlugin
 {
     const PLUGIN_ID = 'srgg';
-    private static $instance;
+    private static ?self $instance = null;
 
-    public static function getInstance()
+    public static function getInstance(): self
     {
         if (!isset(self::$instance)) {
             global $DIC;

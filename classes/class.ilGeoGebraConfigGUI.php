@@ -8,6 +8,7 @@ use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
 use platform\GeoGebraConfig;
 use platform\GeoGebraException;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Class ilGeoGebraConfigGUI
@@ -22,7 +23,7 @@ class ilGeoGebraConfigGUI extends ilPluginConfigGUI
     private \ILIAS\Refinery\Factory $refinery;
     private ilCtrlInterface $ctrl;
     private ilGlobalTemplateInterface $tpl;
-    private $request;
+    private ServerRequestInterface $request;
     private ilTabsGUI $tabs;
     private array $immutableFields = [];
 
@@ -55,7 +56,7 @@ class ilGeoGebraConfigGUI extends ilPluginConfigGUI
     /**
      * @throws ilCtrlException
      */
-    private function initTabs()
+    private function initTabs(): void
     {
         $this->tabs->addTab('default_values', $this->plugin->txt('config_default_values'), $this->ctrl->getLinkTarget($this, 'configureDefaultValues'));
         $this->tabs->addTab('immutables', $this->plugin->txt('config_immutables'), $this->ctrl->getLinkTarget($this, 'configureImmutables'));
@@ -145,7 +146,7 @@ class ilGeoGebraConfigGUI extends ilPluginConfigGUI
                 case "color":
                     if ($value instanceof \ILIAS\Data\Color) $value = $value->asHex();
 
-                    $inputs[$key] = $this->factory->input()->field()->colorPicker($this->plugin->txt('config_' . $key))
+                    $inputs[$key] = $this->factory->input()->field()->colorSelect($this->plugin->txt('config_' . $key))
                         ->withValue(!empty($value) ? $value : $input[1]);
                     break;
                 case "text":
