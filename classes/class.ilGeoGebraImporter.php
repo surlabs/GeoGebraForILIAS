@@ -30,21 +30,10 @@ class ilGeoGebraImporter extends ilPageComponentPluginImporter
             $import_gbb_dir = $this->getImportDirectory() . "/Plugins/SrGeogebra";
         }
 
-        $gbb_import_files = [];
-        $set_num = 1;
-        do {
-            $import_gbb_set_dir = $import_gbb_dir . "/set_" . $set_num;
-            $exp_num = 1;
-            do {
-                $import_gbb_set_exp_dir = $import_gbb_set_dir . "/expDir_" . $exp_num;
-                $gbb_file = $import_gbb_set_exp_dir . "/" . $properties["legacyFileName"];
-                if (file_exists($gbb_file)) {
-                    $gbb_import_files[] = $gbb_file;
-                }
-                $exp_num++;
-            } while (is_dir($import_gbb_set_exp_dir));
-            $set_num++;
-        } while (is_dir($import_gbb_set_dir));
+        $gbb_import_files = $this->findImportFiles(
+            $import_gbb_dir,
+            [basename((string) ($properties["fileName"] ?? "")), (string) ($properties["legacyFileName"] ?? "")]
+        );
 
         if (count($gbb_import_files) > 0) {
             $gbb_file = $gbb_import_files[0];
@@ -59,12 +48,32 @@ class ilGeoGebraImporter extends ilPageComponentPluginImporter
             $resource = $irss->manage()->stream($stream, $stakeholder);
 
             $properties["fileName"] = $resource->serialize();
-
-            if (file_exists($gbb_file)) {
-                unlink($gbb_file);
-            }
         }
 
         self::setPCProperties($new_id, $properties);
+    }
+
+    /**
+     * Exports up to ILIAS 9 numbered the sets from 1, newer ones from 0. Exports made with
+     * plugin versions 10.0.4 / 11.0.0 left the file in the root of the export.
+     */
+    private function findImportFiles(string $import_gbb_dir, array $file_names): array
+    {
+        $search_dirs = glob($import_gbb_dir . "/set_*/expDir_*", GLOB_ONLYDIR) ?: [];
+        $search_dirs[] = $this->getImportDirectory();
+
+        $gbb_import_files = [];
+
+        foreach (array_filter($file_names) as $file_name) {
+            foreach ($search_dirs as $search_dir) {
+                $gbb_file = $search_dir . "/" . $file_name;
+
+                if (is_file($gbb_file)) {
+                    $gbb_import_files[] = $gbb_file;
+                }
+            }
+        }
+
+        return $gbb_import_files;
     }
 }
