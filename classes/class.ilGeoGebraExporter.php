@@ -25,13 +25,38 @@ class ilGeoGebraExporter extends ilPageComponentPluginExporter
             $path = $old_path;
         }
 
-        $export_gbb_file = $this->getAbsoluteExportDirectory() . "/" . $legacyFileName;
+        // The stored file name is unique per element, unlike the uploaded name
+        $export_file_name = basename($fileName);
+
+        $export_gbb_file = $this->getComponentExportDirectory() . "/" . $export_file_name;
 
         ilFileUtils::makeDirParents(dirname($export_gbb_file));
 
         copy($path, $export_gbb_file);
 
-        return "<fileName>$legacyFileName</fileName>";
+        return "<fileName>$export_file_name</fileName>";
+    }
+
+    /**
+     * The export handler passes the root of the export as absolute directory, so the
+     * file has to be placed in the expDir of the component where the importer looks for it.
+     */
+    private function getComponentExportDirectory(): string
+    {
+        try {
+            $path_in_container = $this->getExport()->getPathToComponentExpDirInContainer();
+        } catch (Error $e) {
+            // Legacy export run: the absolute directory already is the expDir of the component
+            return $this->getAbsoluteExportDirectory();
+        }
+
+        $export_folder = $this->getRelativeExportDirectory() . "/";
+
+        if (str_starts_with($path_in_container, $export_folder)) {
+            $path_in_container = substr($path_in_container, strlen($export_folder));
+        }
+
+        return $this->getAbsoluteExportDirectory() . "/" . $path_in_container;
     }
 
     public function getXmlRepresentation(string $a_entity, string $a_schema_version, string $a_id): string
