@@ -451,7 +451,7 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
 
                     break;
                 case "color":
-                    $inputs[$key] = $this->factory->input()->field()->colorPicker($this->plugin->txt('config_' . $key))
+                    $inputs[$key] = $this->factory->input()->field()->colorSelect($this->plugin->txt('config_' . $key))
                         ->withValue($value != "" ? (string) $value : $input[1]);
                     break;
                 case "text":
@@ -559,7 +559,7 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
                     $advancedSettings["advanced_" . $key] = isset($result[$key]) ? (bool)$result[$key] : false;
                 } else {
                     if (!empty($result[$key])) {
-                        $advancedSettings["advanced_" . $key] = $result[$key];
+                        $advancedSettings["advanced_" . $key] = $result[$key] instanceof \ILIAS\Data\Color ? $result[$key]->asHex() : $result[$key];
                     } else if (!empty($occurring_value)) {
                         $advancedSettings["advanced_" . $key] = $occurring_value;
                     }
