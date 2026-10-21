@@ -159,7 +159,7 @@ class ilGeoGebraConfigGUI extends ilPluginConfigGUI
                 $this->refinery->custom()->transformation(
                     function ($v) use ($key, $input) {
                         if ($key == "scale") {
-                            $v = preg_replace('/[^0-9.]/', '', $v);
+                            $v = preg_replace('/[^0-9.]/', '', str_replace(',', '.', (string) $v));
                             $v = $v != "" ? floatval($v) : 1;
                         }
                         GeoGebraConfig::set($key, $input[0] === "color" && $v instanceof \ILIAS\Data\Color ? $v->asHex() : $v);

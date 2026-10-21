@@ -260,19 +260,31 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
             $scaling_height = (float) $properties_after_change["custom_height"];
 
             if (!empty($properties_after_change["advanced_scale"])) {
-                $scale_factor = (float) $properties_after_change["advanced_scale"];
+                $scale_factor = $this->normalizeScale($properties_after_change["advanced_scale"]);
+                $properties_after_change["advanced_scale"] = $scale_factor;
 
                 if ($scale_factor < floatval(1)) {
                     $properties_after_change["custom_alignment"] = "left";
-
-                    $scaling_height *= $scale_factor;
+                } else if ($scale_factor > floatval(1)) {
+                    // GeoGebra ignores scales above 1 unless upscaling is allowed
+                    $properties_after_change["advanced_allowUpscale"] = true;
                 }
+
+                // The applet can only grow as much as the iframe allows, so the iframe follows the scale
+                $scaling_height *= $scale_factor;
             }
 
             return $scaling_height . "px";
         } else {
             return "800px";
         }
+    }
+
+    protected function normalizeScale($value): float
+    {
+        $scale = (float) preg_replace('/[^0-9.]/', '', str_replace(',', '.', (string) $value));
+
+        return $scale > 0 ? $scale : floatval(1);
     }
 
     /**
@@ -491,7 +503,7 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
             "autoHeight" => ["checkbox", false],
             "allowUpscale" => ["checkbox", false],
             "playButton" => ["checkbox", false],
-            "scale" => ["numeric", 1],
+            "scale" => ["text", "1"],
             "showAnimationButton" => ["checkbox", false],
             "showFullscreenButton" => ["checkbox", false],
             "showSuggestionButtons" => ["checkbox", false],
@@ -558,7 +570,9 @@ class ilGeoGebraPluginGUI extends ilPageComponentPluginGUI
                 if ($isCheckbox) {
                     $advancedSettings["advanced_" . $key] = isset($result[$key]) ? (bool)$result[$key] : false;
                 } else {
-                    if (!empty($result[$key])) {
+                    if ($key === "scale" && !empty($result[$key])) {
+                        $advancedSettings["advanced_" . $key] = (string) $this->normalizeScale($result[$key]);
+                    } else if (!empty($result[$key])) {
                         $advancedSettings["advanced_" . $key] = $result[$key] instanceof \ILIAS\Data\Color ? $result[$key]->asHex() : $result[$key];
                     } else if (!empty($occurring_value)) {
                         $advancedSettings["advanced_" . $key] = $occurring_value;
