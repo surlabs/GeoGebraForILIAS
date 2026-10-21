@@ -6,7 +6,7 @@
 
 $id = 'srgg';
 
-$version = '11.0.1';
+$version = '11.0.2';
 
 $ilias_min_version = '11.0';
 $ilias_max_version = '11.999';
